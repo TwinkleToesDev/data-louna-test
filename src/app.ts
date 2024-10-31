@@ -6,6 +6,7 @@ import fastifyPlugin from 'fastify-plugin';
 import { RedisService } from "./services/RedisService.js";
 import cookie from '@fastify/cookie';
 import { startScheduler } from './config/scheduler.js';
+import {ItemService} from "./services/ItemService.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,6 +32,9 @@ const start = async (): Promise<void> => {
     server.register(cookie);
     const redisService = RedisService.getInstance();
     await redisService.connect();
+
+    const itemService = new ItemService();
+    await itemService.fetchAndCacheItems();
 
     startScheduler();
 
