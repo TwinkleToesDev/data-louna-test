@@ -33,6 +33,8 @@ const start = async (): Promise<void> => {
     const redisService = RedisService.getInstance();
     await redisService.connect();
 
+    console.log('Fetching and caching items...');
+
     const itemService = new ItemService();
     await itemService.fetchAndCacheItems();
 
