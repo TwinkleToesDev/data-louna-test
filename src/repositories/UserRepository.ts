@@ -22,8 +22,19 @@ export class UserRepository {
         await sql`UPDATE users SET password = ${newPasswordHash} WHERE id = ${userId}`;
     }
 
-    async updateBalance(userId: number, newBalance: number, tx?: Sql): Promise<void> {
+    async updateBalance(userId: number, deductAmount: number, tx?: Sql): Promise<void> {
         const db = tx || sql;
-        await db`UPDATE users SET balance = ${newBalance} WHERE id = ${userId}`;
+        const [updatedUser] = await db`
+            UPDATE users
+            SET balance = balance - ${deductAmount}
+            WHERE id = ${userId} AND balance >= ${deductAmount}
+            RETURNING balance
+        `;
+
+        if (!updatedUser) {
+            throw new Error('Insufficient balance');
+        }
+
+        return updatedUser.balance;
     }
 }

@@ -16,7 +16,7 @@ export class PurchaseService {
         this.purchaseRepository = new PurchaseRepository();
     }
 
-    async purchaseItem(userId: number, itemId: number, quantity: number): Promise<number> {
+    async purchaseItem(userId: number, itemId: number, quantity: number): Promise<void> {
         return await sql.begin(async (tx) => {
             const user = await this.userRepository.findById(userId, tx, true);
             if (!user) {
@@ -38,8 +38,7 @@ export class PurchaseService {
                 throw new Error('Insufficient balance');
             }
 
-            const newBalance = new Decimal(user.balance).minus(totalPrice).toNumber();
-            await this.userRepository.updateBalance(userId, newBalance, tx);
+            const newBalance = await this.userRepository.updateBalance(userId, totalPrice, tx);
 
             const newQuantity = item.quantity - quantity;
             await this.itemRepository.updateQuantity(itemId, newQuantity, tx);
