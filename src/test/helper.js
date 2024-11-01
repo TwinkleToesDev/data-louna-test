@@ -1,35 +1,24 @@
-'use strict'
+'use strict';
 
-// This file contains code that we reuse
-// between our tests.
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import Fastify from 'fastify';
+import { buildApp } from '../app.js';
 
-const { build: buildApplication } = require('fastify-cli/helper')
-const path = require('node:path')
-const AppPath = path.join(__dirname, '..', 'app.js')
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Fill in this config with all the configurations
-// needed for testing the application
-function config () {
-  return {}
+async function build(t) {
+  const app = Fastify();
+
+  await app.register(buildApp);
+
+  const redisService = RedisService.getInstance();
+  await redisService.connect();
+
+  t.after(() => app.close());
+
+  return app;
 }
 
-// automatically build and tear down our instance
-async function build (t) {
-  // you can set all the options supported by the fastify CLI command
-  const argv = [AppPath]
-
-  // fastify-plugin ensures that all decorators
-  // are exposed for testing purposes, this is
-  // different from the production setup
-  const app = await buildApplication(argv, config())
-
-  // close the app after we are done
-  t.after(() => app.close())
-
-  return app
-}
-
-module.exports = {
-  config,
-  build
-}
+export { build };
