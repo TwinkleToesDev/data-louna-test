@@ -40,8 +40,7 @@ export class PurchaseService {
 
             const newBalance = await this.userRepository.updateBalance(userId, totalPrice, tx);
 
-            const newQuantity = item.quantity - quantity;
-            await this.itemRepository.updateQuantity(itemId, newQuantity, tx);
+            await this.itemRepository.updateQuantity(itemId, quantity, tx);
 
             const purchase: Purchase = {
                 user_id: userId,

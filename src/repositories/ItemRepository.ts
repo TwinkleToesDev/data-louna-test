@@ -38,9 +38,18 @@ export class ItemRepository {
         return item || null;
     }
 
-    async updateQuantity(itemId: number, newQuantity: number, tx?: Sql): Promise<void> {
+    async updateQuantity(itemId: number, deductQuantity: number, tx?: Sql): Promise<void> {
         const db = tx || sql;
-        await db`UPDATE items SET quantity = ${newQuantity} WHERE id = ${itemId}`;
+        const [updatedItem] = await db`
+            UPDATE items
+            SET quantity = quantity - ${deductQuantity}
+            WHERE id = ${itemId} AND quantity >= ${deductQuantity}
+            RETURNING quantity
+        `;
+
+        if (!updatedItem) {
+            throw new Error('Insufficient item quantity');
+        }
     }
 
     async getAllItems(): Promise<Item[]> {
