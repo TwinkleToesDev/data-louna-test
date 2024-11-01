@@ -32,13 +32,13 @@ export class PurchaseService {
                 throw new Error('Insufficient item quantity');
             }
 
-            const totalPrice = item.suggested_price * quantity;
+            const totalPrice = new Decimal(item.suggested_price).mul(quantity).toNumber();
 
             if (user.balance < totalPrice) {
                 throw new Error('Insufficient balance');
             }
 
-            const newBalance = (new Decimal(user.balance).minus(totalPrice).toNumber());
+            const newBalance = new Decimal(user.balance).minus(totalPrice).toNumber();
             await this.userRepository.updateBalance(userId, newBalance, tx);
 
             const newQuantity = item.quantity - quantity;
