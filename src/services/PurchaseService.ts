@@ -2,6 +2,7 @@ import { UserRepository } from '../repositories/UserRepository.js';
 import { ItemRepository } from '../repositories/ItemRepository.js';
 import { PurchaseRepository } from '../repositories/PurchaseRepository.js';
 import { Purchase } from '../models/Purchase.js';
+import Decimal from 'decimal.js';
 import sql from '../config/db.js';
 
 export class PurchaseService {
@@ -37,7 +38,7 @@ export class PurchaseService {
                 throw new Error('Insufficient balance');
             }
 
-            const newBalance = user.balance - totalPrice;
+            const newBalance = (new Decimal(user.balance).minus(totalPrice).toNumber());
             await this.userRepository.updateBalance(userId, newBalance, tx);
 
             const newQuantity = item.quantity - quantity;
