@@ -1,6 +1,6 @@
 import sql from '../config/db.js';
 import { Item } from '../models/Item.js';
-import {Sql} from "postgres";
+import postgres, {Sql} from "postgres";
 
 export class ItemRepository {
     async upsertItems(items: Item[]): Promise<void> {
@@ -28,9 +28,13 @@ export class ItemRepository {
         await Promise.all(queries);
     }
 
-    async getById(itemId: number, tx?: Sql): Promise<Item | null> {
+    async getById(itemId: number, tx?: Sql, forUpdate: boolean = false): Promise<postgres.Row | null> {
         const db = tx || sql;
-        const [item] = await db<Item[]>`SELECT * FROM items WHERE id = ${itemId}`;
+        let query = db`SELECT * FROM items WHERE id = ${itemId}`;
+        if (forUpdate) {
+            query = db`SELECT * FROM items WHERE id = ${itemId} FOR UPDATE`;
+        }
+        const [item] = await query;
         return item || null;
     }
 

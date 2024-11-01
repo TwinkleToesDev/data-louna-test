@@ -1,6 +1,6 @@
 import sql from '../config/db.js';
 import { User } from '../models/User.js';
-import {Sql} from "postgres";
+import postgres, {Sql} from "postgres";
 
 export class UserRepository {
     async findByUsername(username: string): Promise<User | null> {
@@ -8,9 +8,13 @@ export class UserRepository {
         return user || null;
     }
 
-    async findById(userId: number, tx?: Sql): Promise<User | null> {
+    async findById(userId: number, tx?: Sql, forUpdate: boolean = false): Promise<postgres.Row | null> {
         const db = tx || sql;
-        const [user] = await db<User[]>`SELECT * FROM users WHERE id = ${userId}`;
+        let query = db`SELECT * FROM users WHERE id = ${userId}`;
+        if (forUpdate) {
+            query = db`SELECT * FROM users WHERE id = ${userId} FOR UPDATE`;
+        }
+        const [user] = await query;
         return user || null;
     }
 

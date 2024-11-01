@@ -17,12 +17,12 @@ export class PurchaseService {
 
     async purchaseItem(userId: number, itemId: number, quantity: number): Promise<number> {
         return await sql.begin(async (tx) => {
-            const user = await this.userRepository.findById(userId, tx);
+            const user = await this.userRepository.findById(userId, tx, true);
             if (!user) {
                 throw new Error('User not found');
             }
 
-            const item = await this.itemRepository.getById(itemId, tx);
+            const item = await this.itemRepository.getById(itemId, tx, true);
             if (!item) {
                 throw new Error('Item not found');
             }
