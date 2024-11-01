@@ -31,7 +31,8 @@
     "mercurius": "^15.1.0",
     "node-cron": "^3.0.3",
     "postgres": "^3.4.5",
-    "redis": "^4.7.0"
+    "redis": "^4.7.0",
+    "tap": "^21.0.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
